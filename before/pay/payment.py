@@ -1,13 +1,18 @@
+from datetime import date
+from typing import Protocol
 from pay.order import Order
-from pay.processor import PaymentProcessor
+import pytest
+from pay.credit_card import CreditCard
 
 
-def pay_order(order: Order):
+class PaymentProcessor(Protocol):
+    def charge(self, card: str, month: int, year: int, amount: int):
+        """Charges the card with the amount. Doesn't change anything int he rest of the code"""
+
+
+def pay_order(order: Order, card: CreditCard, processor: PaymentProcessor):
     if order.total == 0:
         raise ValueError("Can't pay an order with total 0.")
-    card = input("Please enter your card number: ")
-    month = int(input("Please enter the card expiry month: "))
-    year = int(input("Please enter the card expiry year: "))
-    payment_processor = PaymentProcessor("6cfb67f3-6281-4031-b893-ea85db0dce20")
-    payment_processor.charge(card, month, year, amount=order.total)
+
+    processor.charge(card, amount=order.total)
     order.pay()
